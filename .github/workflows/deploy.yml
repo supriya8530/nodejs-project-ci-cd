@@ -27,4 +27,4 @@ jobs:
           docker stop nodeapp || true
           docker rm nodeapp || true
           docker build -t nodeapp .
-          docker run -d -p 3000:3000 --name nodeapp nodeapp
+          docker run -d -p 2000:2000 --name nodeapp nodeapp
