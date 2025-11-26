@@ -1,4 +1,4 @@
-name: Deploy to EC2 using Docker
+name: Deploy Node App to EC2
 
 on:
   push:
@@ -13,29 +13,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Deploy to EC2
+    - name: Copy files to EC2 and deploy
       uses: appleboy/ssh-action@v0.1.10
       with:
-        host: ${{ secrets.EC2_IP }}
-        username: ubuntu
+        host: ${{ secrets.EC2_HOST }}
+        username: ec2-user
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd /home/ubuntu
-
-          if [ ! -d "app" ]; then
-            mkdir app
-          fi
-
-          cd app
-
-          # Pull latest code
+          cd /home/ec2-user/nodeapp || mkdir /home/ec2-user/nodeapp
+          cd /home/ec2-user/nodeapp
           rm -rf *
-          git clone https://github.com/${{ github.repository }} temp
-          mv temp/* .
-          rm -rf temp
-
-          # Build and run Docker container
-          sudo docker stop node-app || true
-          sudo docker rm node-app || true
-          sudo docker build -t node-app .
-          sudo docker run -d -p 3000:3000 --name node-app node-app
+          git clone https://github.com/supriya8530/nodejs-project-ci-cd.git .
+          docker stop nodeapp || true
+          docker rm nodeapp || true
+          docker build -t nodeapp .
+          docker run -d -p 3000:3000 --name nodeapp nodeapp
