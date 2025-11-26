@@ -21,14 +21,4 @@ jobs:
           source: "."
           target: "/home/ubuntu/nodejs-app"
 
-      - name: Restart PM2 on EC2
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            cd nodejs-app
-            npm install
-            pm2 restart app.js || pm2 start app.js
-            pm2 save
+      
