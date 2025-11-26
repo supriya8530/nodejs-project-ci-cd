@@ -1,0 +1,41 @@
+name: Deploy to EC2 using Docker
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_IP }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu
+
+          if [ ! -d "app" ]; then
+            mkdir app
+          fi
+
+          cd app
+
+          # Pull latest code
+          rm -rf *
+          git clone https://github.com/${{ github.repository }} temp
+          mv temp/* .
+          rm -rf temp
+
+          # Build and run Docker container
+          sudo docker stop node-app || true
+          sudo docker rm node-app || true
+          sudo docker build -t node-app .
+          sudo docker run -d -p 3000:3000 --name node-app node-app
